@@ -39,7 +39,9 @@ pip install "sdflow[energy]"  # plus the energy asset classes
 import sdflow as sd
 
 problem = sd.load_problem("gefcom2014:solar")      # a bundled benchmark
-result = sd.evaluate(problem, sd.Predictor.persistence(), split="validation")
+from sdflow.benchmarks.gefcom2014.baseline import ClimatologyQuantiles
+
+result = sd.evaluate(problem, ClimatologyQuantiles(), split="validation")
 print(result.score, result.n_origins)
 ```
 

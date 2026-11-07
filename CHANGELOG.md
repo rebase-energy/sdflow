@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.1.1 — 2026-11-07
 
 - **One engine, three modes.** `DecisionEnv.step` is now four public pieces, `settle(asof)`,
   `observe(origin)`, `commit(origin, action)` and `reward(settled)`, with `pending`, `state` and
@@ -53,8 +53,6 @@
   `EMFLOW_*` spelling, and a cache warmed under `~/.cache/emflow/<component>` is used as long
   as no `~/.cache/sdflow/<component>` exists (`sdflow.utils.env`). Shell profiles, CI jobs and
   sandbox images configured for emflow need no change.
-
-## Unreleased
 
 - **A problem declares its own analyzers.** `Problem.analyzers` is a list of zero-arg
   factories; every evaluation with the default analyzers also runs them, so a score on
