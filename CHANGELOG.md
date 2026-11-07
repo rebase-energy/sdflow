@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.1.2 — 2026-11-07
 
 - **Problems declared in a dataset repo.** A `problems:` section in a repo's `rebase.yaml`
   names the fields a problem uses, its target, objective (`mae`, `mse`, `rmse`, `mape`,

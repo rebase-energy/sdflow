@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "sdflow"
-version = "0.1.1"
+version = "0.1.2"
 authors = [{ name = "rebase.energy" }]
 description = "Open-source framework for sequential decision problems: problems built from point-in-time data, environments and objectives; predictors, optimizers, simulators and agents; one engine for backtest, simulation and live"
 readme = "README.md"
