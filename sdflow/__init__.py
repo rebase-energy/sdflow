@@ -33,6 +33,7 @@ from .problems import (
     Splits,
     list_problems,
     load_problem,
+    manifest_problems,
 )
 
 from .envs import (
@@ -78,7 +79,7 @@ __all__ = [
     'Problem', 'Splits', 'RefScore', 'Objective', 'IssueSchedule', 'Origin',
     'Metric', 'MeanAbsoluteError', 'MeanSquaredError', 'RootMeanSquaredError',
     'MeanAbsolutePercentageError', 'PinballLoss', 'PeakTimingError',
-    'list_problems', 'load_problem', 'cache_problem_data', 'ProblemNotIngestedError',
+    'list_problems', 'load_problem', 'manifest_problems', 'cache_problem_data', 'ProblemNotIngestedError',
     # models
     'Predictor', 'FeaturePredictor', 'Optimizer', 'Agent', 'Simulator',
     'StorageSimulator', 'StorageState',

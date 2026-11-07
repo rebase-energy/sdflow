@@ -49,6 +49,20 @@ A predictor is `fit(train)` on a leakage-safe training view and `predict(obs)` p
 origin; the environment computes the objective from what it returns. See `docs/` for the
 walkthrough: datasets and feeds, environments, features, models, problems and the run engine.
 
+## Problems from a dataset repo
+
+A benchmark can live entirely in a Hugging Face dataset repo. Its `rebase.yaml` lists the
+fields with their knowledge times and, under `problems:`, the target, objective, schedule
+and splits of each problem. Anyone with sdflow installed runs it without further packages:
+
+```python
+problem = sd.load_problem("rb://dataset/rebase-energy/icing-no:odal")
+result = sd.evaluate(problem, my_predictor, split="validation")
+```
+
+The same loader reads a local directory, so a benchmark is staged and checked as a folder
+before it is published. See `docs/problems/manifest.rst` for the schema.
+
 ## Agents
 
 A policy is a predictor and an optimizer. The predictor forecasts, the optimizer turns the

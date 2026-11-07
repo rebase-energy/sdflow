@@ -152,9 +152,18 @@ def cache_problem_data(name: str, include_private: bool = False, token: str | No
 def load_problem(name: str) -> Problem:
     """Load a problem by name; always returns a :class:`Problem`.
 
+    ``name`` is a registered problem (``package`` or ``package:variant``) or a
+    manifest reference, ``<root>:<variant>`` with ``<root>`` an ``rb://dataset/...``
+    repo, a bare ``owner/name`` Hub repo or a directory whose ``rebase.yaml`` has a
+    ``problems:`` section (see :mod:`sdflow.problems.manifest`).
+
     Raises :class:`ProblemNotIngestedError` for registered-but-not-ingested
     benchmarks, ``KeyError`` for unknown names.
     """
+    from .manifest import is_manifest_reference, load_manifest_problem
+
+    if is_manifest_reference(name):
+        return load_manifest_problem(name)
     folder, _, variant = name.partition(":")
     module = _problem_module(name)
 

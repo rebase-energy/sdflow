@@ -1,5 +1,16 @@
 # Changelog
 
+## Unreleased
+
+- **Problems declared in a dataset repo.** A `problems:` section in a repo's `rebase.yaml`
+  names the fields a problem uses, its target, objective (`mae`, `mse`, `rmse`, `mape`,
+  `pinball` with quantiles), daily issue schedule, splits and reference scores, and
+  `sdflow.load_problem("rb://dataset/<owner>/<repo>:<variant>")` builds the `Problem` from it,
+  with no Python package to install. A local directory works the same
+  (`load_problem("/path/to/staged:odal")`), so a benchmark is staged, checked and published
+  as one folder. `sdflow.manifest_problems(root)` lists what a repo declares. Only the fields
+  a problem lists are read. `Dataset.from_manifest` accepts a directory too.
+
 ## 0.1.1 — 2026-11-07
 
 - **One engine, three modes.** `DecisionEnv.step` is now four public pieces, `settle(asof)`,

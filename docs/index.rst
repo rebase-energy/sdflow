@@ -55,6 +55,7 @@ sdflow: Open-source energy modelling framework
    problems/metrics
    problems/objective
    problems/registry
+   problems/manifest
 
 .. _envs:
 

@@ -20,6 +20,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field as _dc_field
 import typing as t
+from pathlib import Path
 
 import pandas as pd
 
@@ -77,39 +78,66 @@ class Dataset:
 
     @classmethod
     def from_manifest(cls, repo: str, token: t.Optional[str] = None) -> "Dataset":
-        """Load a dataset from a Rebase-compatible repo's ``rebase.yaml``.
+        """Load every field of a Rebase-compatible repo's ``rebase.yaml``.
 
-        ``repo`` is an ``rb://dataset/<owner>/<name>`` URI (or bare
-        ``<owner>/<name>``, treated as a dataset repo). Field frames are read
-        with pandas via fsspec, so ``rb://`` caching and ``HF_TOKEN`` handling
-        apply.
+        ``repo`` is an ``rb://dataset/<owner>/<name>`` URI, a bare ``<owner>/<name>``
+        (treated as a dataset repo) or a local directory holding a staged repo. Field
+        frames are read with pandas via fsspec, so ``rb://`` caching and ``HF_TOKEN``
+        handling apply.
         """
-        import fsspec
-        import yaml
+        manifest, read_frame = read_manifest(repo, token=token)
+        mapping = {name: name for name in (manifest.get("fields") or {})}
+        return cls.from_manifest_fields(manifest, read_frame, mapping,
+                                        name=manifest.get("name", repo.rstrip("/").rsplit("/", 1)[-1]))
 
-        if not repo.startswith("rb://"):
-            repo = f"rb://dataset/{repo}"
-        repo = repo.rstrip("/")
+    @classmethod
+    def from_manifest_fields(cls, manifest: dict, read_frame: t.Callable[[str], pd.DataFrame],
+                             mapping: t.Mapping[str, str], name: str) -> "Dataset":
+        """Build a dataset from a subset of a manifest's fields.
 
-        storage = {"token": token} if token else {}
-        with fsspec.open(f"{repo}/rebase.yaml", "r", **storage) as fh:
-            manifest = yaml.safe_load(fh)
-
+        ``mapping`` is field name in the dataset -> key in ``manifest["fields"]``;
+        ``read_frame`` turns a manifest path into a frame (from :func:`read_manifest`).
+        Only the listed fields are read.
+        """
+        specs = manifest.get("fields") or {}
         fields = {}
-        for name, spec in (manifest.get("fields") or {}).items():
-            frame = pd.read_parquet(f"{repo}/{spec['path']}", storage_options=storage or None)
+        for field_name, key in mapping.items():
+            spec = specs[key]
+            frame = read_frame(spec["path"])
             kind = spec.get("kind", "actual")
             if kind == "forecast" and not isinstance(frame.index, pd.MultiIndex):
                 frame = frame.set_index([spec["issue_col"], spec["valid_col"]])
-            fields[name] = Field(
-                name=name, frame=frame, kind=kind,
+            fields[field_name] = Field(
+                name=field_name, frame=frame, kind=kind,
                 availability_lag=spec.get("availability_lag", "0h"),
                 knowledge_col=spec.get("knowledge_col"),
                 description=spec.get("description"),
             )
-
-        return cls(name=manifest.get("name", repo.rsplit("/", 1)[-1]),
-                   description=manifest.get("description"), fields=fields)
+        return cls(name=name, description=manifest.get("description"), fields=fields)
 
     def __repr__(self):
         return f"Dataset({self.name!r}, fields={sorted(self.fields)})"
+
+
+def read_manifest(root: str, token: t.Optional[str] = None) -> t.Tuple[dict, t.Callable[[str], pd.DataFrame]]:
+    """Read ``rebase.yaml`` at ``root`` and return it with a reader for its files.
+
+    ``root`` is an ``rb://dataset/<owner>/<name>`` URI, a bare ``<owner>/<name>`` Hub
+    repo, or a local directory. The reader takes a path relative to the root (as the
+    manifest's ``path`` entries are written) and returns the parquet as a frame.
+    """
+    import yaml
+
+    local = Path(root).expanduser()
+    if "://" not in root and local.is_dir():
+        manifest = yaml.safe_load((local / "rebase.yaml").read_text())
+        return manifest, lambda rel: pd.read_parquet(local / rel)
+
+    import fsspec
+
+    repo = root if root.startswith("rb://") else f"rb://dataset/{root}"
+    repo = repo.rstrip("/")
+    storage = {"token": token} if token else {}
+    with fsspec.open(f"{repo}/rebase.yaml", "r", **storage) as fh:
+        manifest = yaml.safe_load(fh)
+    return manifest, lambda rel: pd.read_parquet(f"{repo}/{rel}", storage_options=storage or None)
