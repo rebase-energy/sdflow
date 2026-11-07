@@ -55,6 +55,10 @@ dev = [
 [tool.hatch.build.targets.wheel]
 packages = ["sdflow"]
 
+[tool.hatch.build.targets.sdist]
+# The package, tests and scripts; not the rendered docs, images or submissions.
+exclude = ["/docs", "/assets", "/submissions", "/dist", "/.github"]
+
 [tool.ruff]
 line-length = 100
 target-version = "py312"
