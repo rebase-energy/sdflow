@@ -2,6 +2,19 @@
 
 ## Unreleased
 
+- **Truncation invariance as a utility.** `sdflow.truncation_invariance(problem, make_model)`
+  runs the agent on the full dataset and on datasets physically truncated at sampled origins,
+  and reports every origin whose decision differs (`assert_truncation_invariant` raises). It
+  catches what the feed cannot: a model holding the raw dataset, a statistic computed over
+  the whole series, state carried across runs. It refuses to report a pass when a problem's
+  `make_env` ignores `problem.load_dataset()`.
+- **The signal game, the first non-energy benchmark.** `signal-game:w8` and `signal-game:w16`
+  port the one-shot signal game from intelligence-theory: a hidden place, bit sensors and
+  noise sensors, dig and be paid. Its reference scores are exact (chance, the Bayes-optimal
+  reader, the oracle), so a score is a measurement against known truth and the problem doubles
+  as a correctness check of the loop, the feed and the settlement. Baselines `BayesDig`,
+  `LearnedDig` (fits on the training view, then learns online through `Agent.learn`) and
+  `ChanceDig`.
 - **Agent = Predictor ∘ Optimizer.** `Agent.act(obs)` is
   `optimizer.decide(predictor.predict(obs), obs)`: the predictor forecasts, the optimizer
   turns forecast plus state into the decision, the environment settles it. A bare predictor

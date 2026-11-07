@@ -89,6 +89,20 @@ pending, which is exactly what a live participant knows at that clock time: comm
 yet metered. `ForecastEnv` and `TradingEnv` are this environment with a scoring and a
 market settlement.
 
+## Leak checks
+
+The feed makes look-ahead hard by construction. For what construction cannot catch, run the
+truncation check: the decision at an origin must be identical when everything not knowable at
+that origin is physically deleted from the dataset.
+
+```python
+report = sd.truncation_invariance(problem, lambda: MyAgent(seed=0), k=6)
+assert report.ok, report
+```
+
+`signal-game:w8` is the framework's own check: a problem with exact reference scores (chance,
+Bayes, oracle) and no energy in it.
+
 ## Registering your own problems
 
 Problems in other packages register through the `sdflow.problems` entry-point group and

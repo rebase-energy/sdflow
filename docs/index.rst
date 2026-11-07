@@ -109,3 +109,4 @@ sdflow: Open-source energy modelling framework
    run/result
    run/analyzers
    run/verifier
+   run/causality
