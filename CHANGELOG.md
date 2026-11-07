@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.1.3 — 2026-11-07
 
 - **The training view stops at the first origin.** Splits are in target time, so a day-ahead
   origin issued at 10:00 the day before a split starts is earlier than `train_end`; fitting on

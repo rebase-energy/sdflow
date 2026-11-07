@@ -69,7 +69,7 @@ from .run.simulate import simulate
 from .data.io.rebasefs import RebaseFileSystem, RebaseIncompatibleError, register as _register_rb
 _register_rb()
 
-__version__ = "0.1.2"
+__version__ = "0.1.3"
 
 __all__ = [
     "__version__",
