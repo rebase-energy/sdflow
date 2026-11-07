@@ -28,7 +28,6 @@ once with network access and every later evaluation runs offline.
 
 from __future__ import annotations
 
-import os
 
 import pandas as pd
 
@@ -39,12 +38,13 @@ from sdflow.data.io.weather import WIND_VARIABLES, weather_field
 from sdflow.envs import ForecastEnv
 
 from .points import FI_POINTS
+from sdflow.utils.env import getenv
 
 #: The NWP archive starts here — DWD_ICON-EU is not served before 2022, and
 #: it, not Fingrid, is what bounds the problem's history.
-DATA_START = pd.Timestamp(os.environ.get("SDFLOW_FINGRID_DATA_START",
+DATA_START = pd.Timestamp(getenv("FINGRID_DATA_START",
                                          "2022-01-01T00:00:00Z"))
-DATA_END = pd.Timestamp(os.environ.get("SDFLOW_FINGRID_DATA_END",
+DATA_END = pd.Timestamp(getenv("FINGRID_DATA_END",
                                        "2026-08-20T00:00:00Z"))
 
 TARGET_FIELD = "wind"
@@ -57,7 +57,7 @@ NWP_FIELD = "nwp"
 TARGET_LAG = "1h"
 CAPACITY_LAG = "0h"
 
-NWP_MODEL = os.environ.get("SDFLOW_FINGRID_NWP_MODEL", "DWD_ICON-EU")
+NWP_MODEL = getenv("FINGRID_NWP_MODEL", "DWD_ICON-EU")
 
 #: One origin per day, so splits are measured in origins: 120 days = 120
 #: origins = 2880 scored hours.

@@ -37,8 +37,9 @@ from pathlib import Path
 import pandas as pd
 
 from ..field import ISSUE_LEVEL, VALID_LEVEL, Field
+from ...utils.env import cache_root as _shared_cache_root, getenv
 
-BASE_URL = os.environ.get("SDFLOW_WEATHER_BASE_URL", "https://api.rebase.energy")
+BASE_URL = getenv("WEATHER_BASE_URL", "https://api.rebase.energy")
 
 #: Wind-power predictors, in the order a Nordic wind model usually wants them.
 #: 100 m is hub height for modern onshore turbines; 10 m is kept because it is
@@ -95,16 +96,15 @@ class Point:
 
 
 def cache_root() -> Path:
-    return Path(os.environ.get("SDFLOW_WEATHER_CACHE",
-                               Path.home() / ".cache" / "sdflow" / "weather"))
+    return _shared_cache_root("weather")
 
 
 def _offline() -> bool:
-    return os.environ.get("SDFLOW_WEATHER_OFFLINE", "") not in ("", "0")
+    return (getenv("WEATHER_OFFLINE") or "0") != "0"
 
 
 def _api_key() -> t.Optional[str]:
-    return os.environ.get("SDFLOW_WEATHER_API_KEY") or os.environ.get("REBASE_API_KEY")
+    return getenv("WEATHER_API_KEY") or os.environ.get("REBASE_API_KEY")
 
 
 def _utc(ts) -> pd.Timestamp:

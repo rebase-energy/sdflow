@@ -26,7 +26,7 @@ registry after rebase-grid backfills more zones.
 
 from __future__ import annotations
 
-import os
+from sdflow.utils.env import getenv
 
 import pandas as pd
 
@@ -35,7 +35,7 @@ from sdflow.data import DataFeed
 from sdflow.data.io.grid import grid_field
 from sdflow.envs import ForecastEnv
 
-DATA_END = pd.Timestamp(os.environ.get("SDFLOW_GRID_DATA_END", "2026-07-01T00:00:00Z"))
+DATA_END = pd.Timestamp(getenv("GRID_DATA_END", "2026-07-01T00:00:00Z"))
 HISTORY = pd.Timedelta(days=730)
 AVAILABILITY_LAG = "2h"
 HOLDOUT_DAYS = 21

@@ -35,8 +35,9 @@ from pathlib import Path
 import pandas as pd
 
 from ..field import Field
+from ...utils.env import cache_root as _shared_cache_root, getenv
 
-BASE_URL = os.environ.get("SDFLOW_GRID_BASE_URL", "https://grid.rebase.energy/api")
+BASE_URL = getenv("GRID_BASE_URL", "https://grid.rebase.energy/api")
 
 #: variable -> (endpoint, query params)
 VARIABLES: t.Dict[str, t.Tuple[str, t.Dict[str, str]]] = {
@@ -47,16 +48,15 @@ VARIABLES: t.Dict[str, t.Tuple[str, t.Dict[str, str]]] = {
 
 
 def cache_root() -> Path:
-    return Path(os.environ.get("SDFLOW_GRID_CACHE",
-                               Path.home() / ".cache" / "sdflow" / "grid"))
+    return _shared_cache_root("grid")
 
 
 def _offline() -> bool:
-    return os.environ.get("SDFLOW_GRID_OFFLINE", "") not in ("", "0")
+    return (getenv("GRID_OFFLINE") or "0") != "0"
 
 
 def _api_key() -> t.Optional[str]:
-    return os.environ.get("SDFLOW_GRID_API_KEY") or os.environ.get("GRID_API_KEY")
+    return getenv("GRID_API_KEY") or os.environ.get("GRID_API_KEY")
 
 
 def _get_json(url: str, params: dict, api_key: str, retries: int = 3) -> dict:

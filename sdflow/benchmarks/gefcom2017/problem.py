@@ -28,12 +28,13 @@ import sdflow as sd
 from sdflow.data import DataFeed
 from sdflow.envs import ForecastEnv
 from sdflow.problems.schedule import Origin
+from sdflow.utils.env import cache_root
 
 QUANTILES = tuple(q / 10 for q in range(1, 10))
 
 PUBLIC_REPO = "rb://dataset/rebase-energy/gefcom2017"
 PRIVATE_REPO = "rb://dataset/rebase-energy/gefcom2017-private"
-LOCAL_BUILD = Path.home() / ".cache" / "sdflow" / "gefcom2017" / "build"
+LOCAL_BUILD = cache_root("gefcom2017") / "build"
 
 ZONES = ["CT", "ME", "NEMASSBOST", "NH", "RI", "SEMASS", "VT", "WCMASS",
          "MASS", "TOTAL"]

@@ -41,8 +41,9 @@ from pathlib import Path
 import pandas as pd
 
 from ..field import Field
+from ...utils.env import cache_root as _shared_cache_root, getenv
 
-BASE_URL = os.environ.get("SDFLOW_FINGRID_BASE_URL", "https://data.fingrid.fi/api")
+BASE_URL = getenv("FINGRID_BASE_URL", "https://data.fingrid.fi/api")
 
 #: variable -> Fingrid dataset id.
 DATASETS: t.Dict[str, int] = {
@@ -68,16 +69,15 @@ CACHE_VERSION = 1
 
 
 def cache_root() -> Path:
-    return Path(os.environ.get("SDFLOW_FINGRID_CACHE",
-                               Path.home() / ".cache" / "sdflow" / "fingrid"))
+    return _shared_cache_root("fingrid")
 
 
 def _offline() -> bool:
-    return os.environ.get("SDFLOW_FINGRID_OFFLINE", "") not in ("", "0")
+    return (getenv("FINGRID_OFFLINE") or "0") != "0"
 
 
 def _api_key() -> t.Optional[str]:
-    return (os.environ.get("SDFLOW_FINGRID_API_KEY")
+    return (getenv("FINGRID_API_KEY")
             or os.environ.get("FINGRID_API_KEY")
             or os.environ.get("FINGRID_PRIMARY"))
 

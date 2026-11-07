@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+- **Pre-rename settings keep working.** Every `SDFLOW_*` variable falls back to its
+  `EMFLOW_*` spelling, and a cache warmed under `~/.cache/emflow/<component>` is used as long
+  as no `~/.cache/sdflow/<component>` exists (`sdflow.utils.env`). Shell profiles, CI jobs and
+  sandbox images configured for emflow need no change.
+
 ## 0.1.0 — 2026-11-07
 
 First release of sdflow: the domain-neutral port of emflow 0.3.1.

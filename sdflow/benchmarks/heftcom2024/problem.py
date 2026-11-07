@@ -36,6 +36,7 @@ from sdflow.data import DataFeed
 from sdflow.envs import ForecastEnv, TradingEnv
 from sdflow.problems.metrics import TradingRevenue
 from sdflow.problems.schedule import Origin
+from sdflow.utils.env import cache_root
 
 QUANTILES = tuple(q / 10 for q in range(1, 10))
 TARGET_FIELD = "energy"
@@ -43,7 +44,7 @@ TARGET_COLUMN = "total_generation_mwh"
 
 PUBLIC_REPO = "rb://dataset/rebase-energy/heftcom2024"
 PRIVATE_REPO = "rb://dataset/rebase-energy/heftcom2024-private"
-LOCAL_BUILD = Path.home() / ".cache" / "sdflow" / "heftcom2024" / "build"
+LOCAL_BUILD = cache_root("heftcom2024") / "build"
 
 #: Data span and official evaluation period (see scripts/build_heftcom2024.py).
 DATA_START = pd.Timestamp("2020-09-20 00:00", tz="UTC")
