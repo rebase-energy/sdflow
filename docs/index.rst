@@ -92,6 +92,7 @@ sdflow: Open-source energy modelling framework
    :caption: 🤖 Models
 
    models/model
+   models/frames
    models/simulator
    models/storage
    models/predictor

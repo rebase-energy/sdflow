@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+- **Agent = Predictor ∘ Optimizer.** `Agent.act(obs)` is
+  `optimizer.decide(predictor.predict(obs), obs)`: the predictor forecasts, the optimizer
+  turns forecast plus state into the decision, the environment settles it. A bare predictor
+  is the agent whose optimizer is the identity, so nothing that ran before changes; the same
+  predictor now scores on a forecast problem and, behind an optimizer, on a decision problem.
+  `Optimizer.decide` is the stage contract; `IdentityOptimizer` and `QuantileDecision` (the
+  newsvendor fractile) ship. `Forecast` and `Decision` are the two frame contracts, with
+  `forecast()`, `decision()`, `point_of()`, `quantile_of()` builders and accessors. The
+  `Experiment` drives `act()` when a model has it and feeds every settlement to `learn()`;
+  `Verifier` and `load_submission` accept agents.
 - **Stateful decision problems.** `DecisionEnv` is the sequential decision loop itself:
   observations carry the current `state` and the decisions still `pending` settlement; a
   `Simulator` is the transition `S_{t+1} = S^M(S_t, a_t, W_{t+1})`, applied when a decision's

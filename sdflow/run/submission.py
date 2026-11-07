@@ -36,6 +36,7 @@ def load_submission(path: str | Path) -> "Predictor":
     Either way the caller trains the model itself on the official split, so
     the leakage guarantees are identical.
     """
+    from sdflow.models.agent import Agent
     from sdflow.models.predictor import Predictor
 
     path = Path(path)
@@ -49,19 +50,19 @@ def load_submission(path: str | Path) -> "Predictor":
         return module.get_model()
 
     candidate = getattr(module, "model", None)
-    if isinstance(candidate, Predictor):
+    if isinstance(candidate, (Predictor, Agent)):
         return candidate
-    instances = [v for v in vars(module).values() if isinstance(v, Predictor)]
+    instances = [v for v in vars(module).values() if isinstance(v, (Predictor, Agent))]
     if len(instances) == 1:
         return instances[0]
     if len(instances) > 1:
         raise AttributeError(
-            f"{path} defines several sdflow.Predictor instances — name the one to "
+            f"{path} defines several sdflow Predictor/Agent instances — name the one to "
             f"submit as `model = ...`, or expose get_model()."
         )
     raise AttributeError(
-        f"{path} must define `model = <sdflow.Predictor>` or "
-        f"get_model() -> sdflow.Predictor"
+        f"{path} must define `model = <sdflow.Predictor | sdflow.Agent>` or "
+        f"get_model() -> Predictor | Agent"
     )
 
 

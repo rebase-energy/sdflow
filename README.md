@@ -47,6 +47,21 @@ A predictor is `fit(train)` on a leakage-safe training view and `predict(obs)` p
 origin; the environment computes the objective from what it returns. See `docs/` for the
 walkthrough: datasets and feeds, environments, features, models, problems and the run engine.
 
+## Agents
+
+A policy is a predictor and an optimizer. The predictor forecasts, the optimizer turns the
+forecast and the state into the decision, the environment settles it:
+
+```python
+from sdflow.models import Agent, QuantileDecision
+
+agent = Agent(my_quantile_predictor, QuantileDecision(c_under=3, c_over=1))
+result = sd.evaluate("heftcom2024:trading", agent)        # revenue, not pinball loss
+```
+
+A predictor on its own is the agent whose optimizer is the identity, so the same predictor
+can be scored on a forecast leaderboard and, behind an optimizer, on a revenue one.
+
 ## Stateful problems
 
 A forecast problem is the stateless case of the loop. When a decision changes what the next

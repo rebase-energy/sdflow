@@ -67,13 +67,17 @@ class Experiment:
         else:
             actions = None
 
+        act = self.model.act if hasattr(self.model, "act") else self.model.predict
+        learn = getattr(self.model, "learn", None)
         records = []
         step = 0
         while True:
-            action = actions[step] if actions is not None else self.model.predict(obs)
+            action = actions[step] if actions is not None else act(obs)
             obs, reward, terminated, truncated, info = env.step(action)
             for record in info["settled"]:
                 records.append(record)
+                if learn is not None:
+                    learn(record)
                 for analyzer in self.analyzers:
                     analyzer.on_settlement(record)
             step += 1

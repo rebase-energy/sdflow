@@ -30,6 +30,7 @@ import datetime as _dt
 from pathlib import Path
 import typing as t
 
+from ..models.agent import Agent
 from ..models.predictor import Predictor
 from ..problems import Problem, load_problem
 from .experiment import Experiment
@@ -71,12 +72,12 @@ class Verifier:
                 raise ValueError(
                     f"metadata keys {sorted(collisions)} collide with leaderboard fields"
                 )
-        model = submission() if callable(submission) and not isinstance(submission, Predictor) \
+        model = submission() if callable(submission) and not isinstance(submission, (Predictor, Agent)) \
             else submission
-        if not isinstance(model, Predictor):
+        if not isinstance(model, (Predictor, Agent)):
             raise TypeError(
-                f"submission must be an sdflow Predictor (or a factory returning "
-                f"one), got {type(model).__name__}"
+                f"submission must be an sdflow Predictor or Agent (or a factory "
+                f"returning one), got {type(model).__name__}"
             )
         if name:
             model.name = name

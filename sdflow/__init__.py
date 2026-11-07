@@ -10,7 +10,8 @@ from .spaces.dataframe import DataFrameSpace
 from .data import Dataset, DataFeed, Field, TimeView
 
 from .models.agent import Agent
-from .models.optimizer import Optimizer
+from .models.frames import Decision, Forecast, decision, forecast, point_of, quantile_of
+from .models.optimizer import IdentityOptimizer, Optimizer, QuantileDecision
 from .models.predictor import Predictor
 from .models.simulator import Simulator
 
@@ -77,6 +78,8 @@ __all__ = [
     # models
     'Predictor', 'FeaturePredictor', 'Optimizer', 'Agent', 'Simulator',
     'StorageSimulator', 'StorageState',
+    'IdentityOptimizer', 'QuantileDecision',
+    'Forecast', 'Decision', 'forecast', 'decision', 'point_of', 'quantile_of',
     # envs
     'DecisionEnv', 'ForecastEnv', 'TradingEnv', 'Observation', 'SettlementRecord',
     'Settlement', 'SettlementContext', 'ScoreSettlement', 'MarketSettlement',
