@@ -2,6 +2,17 @@
 
 ## Unreleased
 
+- **One engine, three modes.** `DecisionEnv.step` is now four public pieces, `settle(asof)`,
+  `observe(origin)`, `commit(origin, action)` and `reward(settled)`, with `pending`, `state` and
+  `restore()` so a runner can drive one origin at a time. `sdflow.LiveSession(problem, model)`
+  is that runner's memory: `step(dataset, now)` settles what the data makes knowable, learns
+  from it, decides for the origin open now and keeps the pending decisions and state; driving
+  it on truncated data replays a backtest's decisions and scores exactly, which is the test
+  that backtest and live are the same loop. `Problem.sampler` (`seed -> Dataset`) and
+  `sdflow.simulate(problem, make_model, n_scenarios)` run the same loop over draws of the
+  exogenous information and report the score distribution; the signal game has a sampler.
+  Data fetching stays outside sdflow: a live runner builds the `Dataset` as of now and hands
+  it in.
 - **Truncation invariance as a utility.** `sdflow.truncation_invariance(problem, make_model)`
   runs the agent on the full dataset and on datasets physically truncated at sampled origins,
   and reports every origin whose decision differs (`assert_truncation_invariant` raises). It

@@ -58,6 +58,8 @@ from .run import (
     sweep,
 )
 from .run.causality import assert_truncation_invariant, truncate_dataset, truncation_invariance
+from .run.live import LiveSession
+from .run.simulate import simulate
 
 # Register the Hugging Face-backed ``rb://`` fsspec filesystem so
 # pandas/polars/duckdb understand it. huggingface_hub is imported lazily on
@@ -92,6 +94,7 @@ __all__ = [
     'Experiment', 'Result', 'Verifier', 'evaluate', 'load_submission',
     'sweep', 'best_per_problem',
     'truncation_invariance', 'assert_truncation_invariant', 'truncate_dataset',
+    'simulate', 'LiveSession',
     'Analyzer', 'PersistenceSkill', 'QuantileCalibration', 'default_analyzers',
     # io
     'RebaseFileSystem', 'RebaseIncompatibleError',

@@ -8,7 +8,7 @@ reference scores that let a result be ranked against the historical field.
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field as _dc_field
+from dataclasses import dataclass, field as _dc_field, replace
 import typing as t
 
 import pandas as pd
@@ -78,6 +78,9 @@ class Problem:
     splits: Splits
     description: t.Optional[str] = None
     reference_scores: t.List[RefScore] = _dc_field(default_factory=list)
+    #: ``sampler(seed) -> Dataset``: a fresh draw of the exogenous information,
+    #: for :func:`sdflow.run.simulate.simulate`. None for history-only problems.
+    sampler: t.Optional[t.Callable[[int], Dataset]] = None
 
     _dataset_cache: t.Optional[Dataset] = _dc_field(default=None, repr=False, compare=False)
 
@@ -94,6 +97,12 @@ class Problem:
                 raise TypeError(f"problem {self.name!r}: dataset resolved to {type(ds).__name__}")
             self._dataset_cache = ds
         return self._dataset_cache
+
+    def scenario(self, seed: int) -> "Problem":
+        """This problem over a fresh draw of its exogenous information."""
+        if self.sampler is None:
+            raise ValueError(f"problem {self.name!r} has no sampler; it can only be backtested")
+        return replace(self, dataset=self.sampler(seed), _dataset_cache=None)
 
     def env(self, split: str = "validation") -> "gym.Env":
         """Build a fresh environment over the given split's origins."""

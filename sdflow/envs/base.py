@@ -154,34 +154,57 @@ class DecisionEnv(gym.Env):
             # Strict boundary: a value stamped exactly train_end is a scored
             # target of the first evaluation origin, never training data.
             info["train"] = self.feed.view(self.train_end, strict=True)
-        return self._observe(self.origins[0]), info
+        return self.observe(self.origins[0]), info
 
     def step(self, action):
         origin = self.origins[self._i]
-        self._pending.append((origin, self.action_spec.validate(action, origin)))
+        self.commit(origin, action)
         self._i += 1
 
         terminated = self._i >= len(self.origins)
-        if terminated:
-            # Final flush: the run is over, settle everything that will ever
-            # be knowable (clock = last target's availability time).
-            last_end = max(o.target_end for o, _ in self._pending)
-            settle_asof = last_end + self._settle_lag
-        else:
-            settle_asof = self.origins[self._i].asof
+        settle_asof = self.flush_time() if terminated else self.origins[self._i].asof
+        settled = self.settle(settle_asof)
+        obs = None if terminated else self.observe(self.origins[self._i])
+        return obs, self.reward(settled), terminated, False, {"settled": settled}
 
-        settled = self._settle(settle_asof)
-        obs = None if terminated else self._observe(self.origins[self._i])
-        reward = sum(-r.score if self.objective.lower_is_better else r.score
-                     for r in settled if pd.notna(r.score))
-        return obs, float(reward), terminated, False, {"settled": settled}
+    # -- the loop's pieces, for runners that drive one origin at a time ---------------
+    #
+    # ``step`` is these four in order. A live runner calls them itself: settle
+    # what has become knowable, observe the origin that is open now, commit the
+    # agent's action, and persist ``pending`` and ``state`` until the next call.
 
-    # -- internals -----------------------------------------------------------------
+    @property
+    def pending(self) -> t.Tuple[t.Tuple[Origin, pd.DataFrame], ...]:
+        """Decisions committed and not yet settled."""
+        return tuple(self._pending)
 
-    def _observe(self, origin: Origin) -> Observation:
+    def restore(self, state: t.Any, pending: t.Sequence[t.Tuple[Origin, pd.DataFrame]]) -> None:
+        """Resume from persisted ``state`` and ``pending`` (a live runner's memory)."""
+        self.state = state
+        self._pending = list(pending)
+
+    def observe(self, origin: Origin) -> Observation:
+        """What the agent sees at ``origin``: data knowable then, state, pending."""
         return Observation(self.feed, origin, state=self.state, pending=self._pending)
 
-    def _settle(self, asof) -> t.List[SettlementRecord]:
+    def commit(self, origin: Origin, action) -> pd.DataFrame:
+        """Validate ``action`` for ``origin`` and queue it for settlement."""
+        action = self.action_spec.validate(action, origin)
+        self._pending.append((origin, action))
+        return action
+
+    def flush_time(self) -> pd.Timestamp:
+        """The clock time at which every pending decision has become knowable."""
+        if not self._pending:
+            return self.origins[-1].asof
+        return max(o.target_end for o, _ in self._pending) + self._settle_lag
+
+    def reward(self, settled: t.Sequence[SettlementRecord]) -> float:
+        """Sum of settled scores, signed so that more reward is always better."""
+        return float(sum(-r.score if self.objective.lower_is_better else r.score
+                         for r in settled if pd.notna(r.score)))
+
+    def settle(self, asof) -> t.List[SettlementRecord]:
         """Settle every pending origin whose window is knowable at ``asof``.
 
         Stateful envs settle strictly in origin order, since each transition

@@ -247,6 +247,7 @@ def _problem(variant: str) -> sd.Problem:
         splits=SPLITS,
         description=__doc__,
         reference_scores=reference_scores(task),
+        sampler=lambda seed: build_dataset(task, N_TRAIN + N_VALIDATION + N_HOLDOUT, seed=seed),
     )
 
 

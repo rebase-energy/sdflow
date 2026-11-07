@@ -89,6 +89,22 @@ pending, which is exactly what a live participant knows at that clock time: comm
 yet metered. `ForecastEnv` and `TradingEnv` are this environment with a scoring and a
 market settlement.
 
+## Backtest, simulate, live
+
+The same policy, the same environment, three sources of exogenous information:
+
+```python
+result  = sd.evaluate(problem, agent)                                   # history
+sim     = sd.simulate(problem, lambda: MyAgent(), n_scenarios=20)        # sampled draws
+session = sd.LiveSession(problem, agent)                                 # the clock
+step    = session.step(dataset_as_of_now)                                # one wake-up
+```
+
+A live session settles what has become knowable, decides for the origin open now and keeps
+its pending decisions and state between wake-ups. Fed the dataset truncated at each origin,
+it reproduces the backtest exactly. Fetching the data as of now is the runner's job (the
+Rebase toolkit's, in production); sdflow defines what it is handed and what comes back.
+
 ## Leak checks
 
 The feed makes look-ahead hard by construction. For what construction cannot catch, run the
