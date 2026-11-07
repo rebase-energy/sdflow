@@ -161,3 +161,16 @@ class TestErrors:
         repo = _stage(tmp_path, problems={})
         with pytest.raises(ManifestError, match="declares no problems"):
             sd.load_problem(str(repo))
+
+
+class TestStraddlingOrigin:
+    def test_fit_once_model_is_truncation_invariant(self, repo):
+        """The first validation origin is issued at 10:00 the day before the split starts.
+        The training view stops at that origin, so a model fitted once sees nothing the
+        origin cannot know and the leak check passes."""
+        problem = sd.load_problem(f"{repo}:a")
+        env = problem.env("validation")
+        assert env.origins[0].asof < problem.splits.train_end
+        assert env.train_asof == env.origins[0].asof
+        report = sd.truncation_invariance(problem, TrainMean, split="validation", k=3)
+        assert report.ok, report.violations

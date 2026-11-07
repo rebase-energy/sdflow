@@ -16,7 +16,18 @@ class TestGymContract:
         obs, info = env.reset()
         assert isinstance(obs, Observation)
         assert "train" in info
-        assert info["train"].asof == toy_problem.splits.train_end
+        # the toy's first validation origin is issued an hour before train_end,
+        # so the training view stops there: nothing the origin cannot know
+        assert info["train"].asof == env.train_asof <= toy_problem.splits.train_end
+        assert env.train_asof == env.origins[0].asof
+
+    def test_training_view_stops_at_the_first_origin(self, toy_problem):
+        env = toy_problem.env("validation")
+        first = env.origins[0].asof
+        assert first < toy_problem.splits.train_end
+        assert env.train_asof == first
+        env_holdout = toy_problem.env("holdout")
+        assert env_holdout.train_asof == toy_problem.splits.train_end
 
     def test_step_five_tuple_and_termination(self, toy_problem):
         env = toy_problem.env("validation")

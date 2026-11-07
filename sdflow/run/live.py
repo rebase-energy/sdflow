@@ -149,7 +149,7 @@ class LiveSession:
             if hasattr(self.model, "bind"):
                 self.model.bind(self.problem)
             if env.train_end is not None and hasattr(self.model, "fit"):
-                self.model.fit(env.feed.view(env.train_end, strict=True))
+                self.model.fit(env.feed.view(env.train_asof, strict=True))
             self.state = env.state          # the simulator's initial state
             self.started = True
         env.restore(self.state, self.pending)

@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased
+
+- **The training view stops at the first origin.** Splits are in target time, so a day-ahead
+  origin issued at 10:00 the day before a split starts is earlier than `train_end`; fitting on
+  data stamped between the two gave a fit-once model up to a day of information that origin
+  could not have, and `truncation_invariance` rightly failed every such model. `DecisionEnv`
+  now takes the training view at `env.train_asof`, which is `train_end` or the first origin's
+  asof when that comes earlier (`LiveSession` the same). Scores on daily problems move by the
+  hours lost from training; nothing else changes.
+
 ## 0.1.2 — 2026-11-07
 
 - **Problems declared in a dataset repo.** A `problems:` section in a repo's `rebase.yaml`

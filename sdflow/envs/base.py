@@ -151,10 +151,25 @@ class DecisionEnv(gym.Env):
         self.state = self.simulator.reset(seed=seed) if self.simulator is not None else None
         info = {}
         if self.train_end is not None:
-            # Strict boundary: a value stamped exactly train_end is a scored
-            # target of the first evaluation origin, never training data.
-            info["train"] = self.feed.view(self.train_end, strict=True)
+            info["train"] = self.feed.view(self.train_asof, strict=True)
         return self.observe(self.origins[0]), info
+
+    @property
+    def train_asof(self) -> t.Optional[pd.Timestamp]:
+        """When the training view is taken: ``train_end``, or the first origin's
+        asof when that comes earlier.
+
+        Splits are in target time, so a day-ahead origin issued at 10:00 the day
+        before the split starts is earlier than ``train_end``; fitting on data
+        stamped between the two would use information that origin cannot have.
+        The boundary is strict either way: a value stamped exactly at it is a
+        scored target or not yet knowable, never training data.
+        """
+        if self.train_end is None:
+            return None
+        if self.origins and self.origins[0].asof < self.train_end:
+            return pd.Timestamp(self.origins[0].asof)
+        return self.train_end
 
     def step(self, action):
         origin = self.origins[self._i]
