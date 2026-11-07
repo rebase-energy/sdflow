@@ -62,6 +62,9 @@ sdflow: Open-source energy modelling framework
    :maxdepth: 2
    :caption: 🌍 Environments
 
+   envs/base
+   envs/settlement
+   envs/actions
    envs/forecast
    envs/trading
 
@@ -90,6 +93,7 @@ sdflow: Open-source energy modelling framework
 
    models/model
    models/simulator
+   models/storage
    models/predictor
    models/optimizer
    models/agent

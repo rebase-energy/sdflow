@@ -34,7 +34,12 @@ from .problems import (
     load_problem,
 )
 
-from .envs import ForecastEnv, Observation, SettlementRecord, TradingEnv
+from .envs import (
+    ActionSpec, ColumnsAction, DecisionEnv, ForecastAction, ForecastEnv,
+    MarketSettlement, Observation, ScoreSettlement, Settlement, SettlementContext,
+    SettlementRecord, TradingEnv,
+)
+from .models.storage import StorageSimulator, StorageState
 from .problems.metrics import TradingRevenue
 from .features import Calendar, ForecastField, Lag, Rolling, materialize
 from .models.predictor import FeaturePredictor
@@ -71,8 +76,11 @@ __all__ = [
     'list_problems', 'load_problem', 'cache_problem_data', 'ProblemNotIngestedError',
     # models
     'Predictor', 'FeaturePredictor', 'Optimizer', 'Agent', 'Simulator',
+    'StorageSimulator', 'StorageState',
     # envs
-    'ForecastEnv', 'TradingEnv', 'Observation', 'SettlementRecord',
+    'DecisionEnv', 'ForecastEnv', 'TradingEnv', 'Observation', 'SettlementRecord',
+    'Settlement', 'SettlementContext', 'ScoreSettlement', 'MarketSettlement',
+    'ActionSpec', 'ForecastAction', 'ColumnsAction',
     'TradingRevenue',
     # features
     'Lag', 'Rolling', 'ForecastField', 'Calendar', 'materialize',

@@ -52,10 +52,11 @@ class PersistenceSkill(Analyzer):
         super().setup(feed, target_field, target_column, objective)
         # Env-settled objectives (trading revenue) can't score a synthetic
         # baseline from (actuals, prediction) alone — opt out cleanly.
-        self._disabled = getattr(objective.metric, "settled_by_env", False)
+        self._disabled = (getattr(objective.metric, "settled_by_env", False)
+                          or target_field is None)
 
     def on_settlement(self, record) -> None:
-        if self._disabled:
+        if self._disabled or record.actuals is None:
             return
         hist = self.feed.history(record.origin.asof, self.target_field)
         col = hist[record.origin.column or self.target_column].dropna()
@@ -97,7 +98,7 @@ class QuantileCalibration(Analyzer):
 
     def on_settlement(self, record) -> None:
         levels = quantile_columns(record.prediction)
-        if not levels:
+        if not levels or record.actuals is None:
             return
         y = record.actuals
         for q in levels:

@@ -39,12 +39,19 @@ class Experiment:
             self.analyzers = list(analyzers or [])
 
     def run(self, mode: str = "auto") -> Result:
-        if mode == "auto":
-            mode = "vectorized" if getattr(self.model, "supports_batch", False) else "event"
-        if mode not in ("event", "vectorized"):
+        if mode not in ("auto", "event", "vectorized"):
             raise ValueError(f"mode must be 'auto', 'event' or 'vectorized', got {mode!r}")
 
         env = self.problem.env(self.split)
+        stateful = getattr(env, "stateful", False)
+        if mode == "auto":
+            batch = getattr(self.model, "supports_batch", False)
+            mode = "vectorized" if batch and not stateful else "event"
+        elif mode == "vectorized" and stateful:
+            raise ValueError(
+                "vectorized mode replays actions precomputed from features alone and "
+                "cannot see the state a simulator carries; use mode='event'"
+            )
         obs, info = env.reset()
 
         for analyzer in self.analyzers:
@@ -110,7 +117,7 @@ class Experiment:
                 "asof": r.origin.asof,
                 "target_start": r.origin.target_start,
                 "target_end": r.origin.target_end,
-                "n_scored": int(r.actuals.notna().sum()),
+                "n_scored": r.n_scored,
                 "score": r.score,
             })
 

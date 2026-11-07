@@ -2,6 +2,19 @@
 
 ## Unreleased
 
+- **Stateful decision problems.** `DecisionEnv` is the sequential decision loop itself:
+  observations carry the current `state` and the decisions still `pending` settlement; a
+  `Simulator` is the transition `S_{t+1} = S^M(S_t, a_t, W_{t+1})`, applied when a decision's
+  window becomes knowable; a `Settlement` turns the settled decision into its contribution.
+  `ForecastEnv` is the stateless case (a `ScoreSettlement` scoring the forecast with the
+  objective) and `TradingEnv` is `ForecastEnv` with a `MarketSettlement` (HEFTCom24's two-price
+  rule); both keep their constructors, and either accepts `settlement=`, `action_spec=` and
+  `simulator=` overrides. Action validation moved into `ActionSpec` (`ForecastAction`,
+  `ColumnsAction`). `StorageSimulator` is the first simulator: a bounded store (battery,
+  reservoir, warehouse) with rate limits and efficiencies that reports the flows it actually
+  executed. `Experiment` runs stateful environments in event mode only, since precomputed
+  actions cannot see state. `SettlementRecord.action` is the submitted action (`prediction`
+  remains as an alias) and `actuals` may be `None` for problems without a target series.
 - **Pre-rename settings keep working.** Every `SDFLOW_*` variable falls back to its
   `EMFLOW_*` spelling, and a cache warmed under `~/.cache/emflow/<component>` is used as long
   as no `~/.cache/sdflow/<component>` exists (`sdflow.utils.env`). Shell profiles, CI jobs and

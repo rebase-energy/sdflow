@@ -47,6 +47,33 @@ A predictor is `fit(train)` on a leakage-safe training view and `predict(obs)` p
 origin; the environment computes the objective from what it returns. See `docs/` for the
 walkthrough: datasets and feeds, environments, features, models, problems and the run engine.
 
+## Stateful problems
+
+A forecast problem is the stateless case of the loop. When a decision changes what the next
+decision faces, give the environment a simulator and a settlement:
+
+```python
+from sdflow.envs import ColumnsAction, DecisionEnv, Settlement
+from sdflow.models import StorageSimulator
+
+class StorageRevenue(Settlement):
+    fields = ("price",)                      # settle once the realised price is knowable
+    def settle(self, ctx):                   # price what the store actually did
+        return float(-(ctx.series("price") * ctx.state_after.realized).sum())
+
+env = DecisionEnv(
+    feed, origins, settlement=StorageRevenue(), objective=objective,
+    action_spec=ColumnsAction("flow"),       # the decision: a flow per target period
+    simulator=StorageSimulator(capacity=10, max_inflow=5, max_outflow=5),
+)
+obs, _ = env.reset()                         # obs.state.level == 0.0, obs.pending == ()
+```
+
+The observation carries the state after the last settled decision and the decisions still
+pending, which is exactly what a live participant knows at that clock time: committed, not
+yet metered. `ForecastEnv` and `TradingEnv` are this environment with a scoring and a
+market settlement.
+
 ## Registering your own problems
 
 Problems in other packages register through the `sdflow.problems` entry-point group and
