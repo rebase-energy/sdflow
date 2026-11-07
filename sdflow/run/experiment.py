@@ -34,7 +34,11 @@ class Experiment:
         self.model = model
         self.split = split
         if analyzers == "default":
-            self.analyzers = default_analyzers(model)
+            # The standard diagnostics plus whatever the problem declares for itself,
+            # built fresh for this run (analyzers accumulate state).
+            self.analyzers = default_analyzers(model) + [
+                factory() for factory in getattr(problem, "analyzers", None) or []
+            ]
         else:
             self.analyzers = list(analyzers or [])
 

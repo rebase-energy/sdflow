@@ -1,7 +1,7 @@
 from .live import FixedClock, LiveSession, LiveStep, WallClock
 from .simulate import SimulationResult, simulate
 from .causality import TruncationReport, assert_truncation_invariant, truncate_dataset, truncation_invariance
-from .analyzers import Analyzer, PersistenceSkill, QuantileCalibration, default_analyzers
+from .analyzers import Analyzer, PersistenceSkill, QuantileCalibration, RegimeBreakdown, default_analyzers
 from .experiment import Experiment
 from .result import Result
 from .submission import evaluate, load_submission
@@ -14,5 +14,5 @@ __all__ = [
     "sweep", "best_per_problem",
     "simulate", "SimulationResult", "LiveSession", "LiveStep", "WallClock", "FixedClock",
     "truncation_invariance", "assert_truncation_invariant", "truncate_dataset", "TruncationReport",
-    "Analyzer", "PersistenceSkill", "QuantileCalibration", "default_analyzers",
+    "Analyzer", "PersistenceSkill", "QuantileCalibration", "RegimeBreakdown", "default_analyzers",
 ]

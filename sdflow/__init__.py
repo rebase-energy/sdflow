@@ -49,6 +49,7 @@ from .run import (
     Experiment,
     PersistenceSkill,
     QuantileCalibration,
+    RegimeBreakdown,
     Result,
     Verifier,
     best_per_problem,
@@ -95,7 +96,7 @@ __all__ = [
     'sweep', 'best_per_problem',
     'truncation_invariance', 'assert_truncation_invariant', 'truncate_dataset',
     'simulate', 'LiveSession',
-    'Analyzer', 'PersistenceSkill', 'QuantileCalibration', 'default_analyzers',
+    'Analyzer', 'PersistenceSkill', 'QuantileCalibration', 'RegimeBreakdown', 'default_analyzers',
     # io
     'RebaseFileSystem', 'RebaseIncompatibleError',
 ]

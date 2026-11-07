@@ -81,6 +81,13 @@ class Problem:
     #: ``sampler(seed) -> Dataset``: a fresh draw of the exogenous information,
     #: for :func:`sdflow.run.simulate.simulate`. None for history-only problems.
     sampler: t.Optional[t.Callable[[int], Dataset]] = None
+    #: Diagnostics the problem itself declares: zero-arg factories returning fresh
+    #: :class:`~sdflow.run.analyzers.Analyzer` instances (one set per run). Every
+    #: evaluation with the default analyzers includes them, so a score on this problem
+    #: always carries the breakdown the problem considers meaningful -- a regime split,
+    #: a per-site view -- without each caller remembering to ask. Not part of the
+    #: spec a platform fingerprints: diagnostics do not change what is scored.
+    analyzers: t.List[t.Callable[[], t.Any]] = _dc_field(default_factory=list)
 
     _dataset_cache: t.Optional[Dataset] = _dc_field(default=None, repr=False, compare=False)
 

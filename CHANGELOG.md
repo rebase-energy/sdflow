@@ -54,6 +54,16 @@
   as no `~/.cache/sdflow/<component>` exists (`sdflow.utils.env`). Shell profiles, CI jobs and
   sandbox images configured for emflow need no change.
 
+## Unreleased
+
+- **A problem declares its own analyzers.** `Problem.analyzers` is a list of zero-arg
+  factories; every evaluation with the default analyzers also runs them, so a score on
+  the problem always carries the breakdown the problem considers meaningful. Not part
+  of the spec a platform fingerprints.
+- **`RegimeBreakdown`**: score, hours, share and bias (actual minus the median or point
+  prediction) per regime, where the regime is read post hoc from one field's column
+  against a threshold or bin edges. The hours that matter get their own number.
+
 ## 0.1.0 — 2026-11-07
 
 First release of sdflow: the domain-neutral port of emflow 0.3.1.
