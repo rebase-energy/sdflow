@@ -4,15 +4,23 @@ build-backend = "hatchling.build"
 
 [project]
 name = "sdflow"
-version = "0.0.1"
+version = "0.1.0"
 authors = [{ name = "rebase.energy" }]
-description = "Open-source framework for sequential decision problems: simulators, predictors, optimizers and the agents that connect them"
+description = "Open-source framework for sequential decision problems: problems built from point-in-time data, environments and objectives; predictors, optimizers, simulators and agents; one engine for backtest, simulation and live"
 readme = "README.md"
 license = { text = "MIT" }
 requires-python = ">=3.12"
-dependencies = []
+dependencies = [
+    "numpy>=1.26",
+    "pandas>=2.1",
+    "gymnasium>=1.1.1",
+    "fsspec>=2023.1.0",
+    "huggingface_hub>=0.20",  # Hugging Face-backed rb:// filesystem
+    "pyyaml>=6.0",            # rebase.yaml dataset manifests
+    "pyarrow>=15.0.0",        # parquet IO for benchmark datasets
+]
 classifiers = [
-    "Development Status :: 1 - Planning",
+    "Development Status :: 3 - Alpha",
     "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.12",
@@ -25,10 +33,23 @@ classifiers = [
 Homepage = "https://github.com/rebase-energy/sdflow"
 Repository = "https://github.com/rebase-energy/sdflow"
 
+[project.optional-dependencies]
+energy = ["energydatamodel>=0.7.0,<0.8.0"]   # sdflow.energy: the asset classes
+examples = ["matplotlib>=3.8", "plotly>=5.0"]
+build-data = ["xarray>=2024.1", "netCDF4>=1.6"]  # scripts/build_*.py dataset ingestion
+
+# Make the ``rb://`` scheme discoverable by fsspec without an explicit
+# ``import sdflow`` -- the same mechanism huggingface_hub uses for ``hf://``.
+[project.entry-points."fsspec.specs"]
+rb = "sdflow.data.io.rebasefs:RebaseFileSystem"
+
 [dependency-groups]
 dev = [
     "pytest>=8",
     "ruff>=0.8",
+    "energydatamodel>=0.7.0,<0.8.0",
+    "matplotlib>=3.8",
+    "pvlib>=0.11",
 ]
 
 [tool.hatch.build.targets.wheel]
@@ -37,3 +58,6 @@ packages = ["sdflow"]
 [tool.ruff]
 line-length = 100
 target-version = "py312"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
